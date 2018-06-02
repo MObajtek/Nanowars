@@ -1,12 +1,11 @@
 import pygame
 import copy
 
-# Stworz liste w pliku Level circles = [cells[c1,c2,c1],neutrals[n1,n2,n3],enemies[e1,e2,e3]]
-#  zeby moc modyfikowac jedna liste przy sprawdzaniu destinationCell (also: despawn, spawn)
+
 
 
 class Virus(pygame.sprite.Sprite):
-    def __init__(self, img, startCell, destinationCell, myself):
+    def __init__(self, img, startCell, destinationCell):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.image.load(img).convert()
@@ -17,7 +16,6 @@ class Virus(pygame.sprite.Sprite):
         self.size = self.image.get_rect().width
         self.center = copy.deepcopy(startCell.center)
         self.volume = startCell.volume // 2
-        self.myself = myself
         self.direction = [destinationCell.center[0] - self.center[0], destinationCell.center[1] - self.center[1]]
 
         magnitude = (self.direction[0] ** 2 + self.direction[1] ** 2) ** 0.5
@@ -30,34 +28,35 @@ class Virus(pygame.sprite.Sprite):
 
     def send(self, allList):
 
-        for i in range (3):
-            for circle in allList[i]:
-                if circle.center == self.destinationCell.center:
-                    self.destinationCell = circle
-        if type(self.startCell) == type(self.destinationCell):
-            self.myself = True
-        else:
-            self.myself = False
-
         self.center[0] += self.direction[0] * self.speed
         self.center[1] += self.direction[1] * self.speed
+        # jesli x i y w odleglosci conajwyzej 5 od celu
         if abs(self.center[0] - self.destinationCell.center[0]) < 5:
             if abs(self.center[1] - self.destinationCell.center[1]) < 5:
-                # jesli x i y w odleglosci conajwyzej 10 od celu
+                for i in range(3):
+                    for circle in allList[i]:
+                        if circle.center == self.destinationCell.center:
+                            self.destinationCell = circle
+                if type(self.startCell) == type(self.destinationCell):
+                    myself = True
+                else:
+                    myself = False
                 # 1. przekaz komorki
-                if self.myself:
+                if myself:
                     self.destinationCell.volume += self.volume
                 else:
                     self.destinationCell.volume -= self.volume
                 # 2. usun sie z listy wirusow
-                for i in range(len(allList[3])):
-                    if self == allList[3][i]:
-                        allList[3].pop(i)
-                        return True
-                for i in range(len(allList[4])):
-                    if self == allList[4][i]:
-                        allList[4].pop(i)
-                        return True
+                if type(self.startCell) == Cell:
+                    for i in range(len(allList[3])):
+                        if self == allList[3][i]:
+                            allList[3].pop(i)
+                            return True
+                else:
+                    for i in range(len(allList[4])):
+                        if self == allList[4][i]:
+                            allList[4].pop(i)
+                            return True
     def text(self):
         myfont = pygame.font.SysFont("arialblack", 15)
         return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
@@ -102,8 +101,7 @@ class Enemies(pygame.sprite.Sprite):
         self.size = self.image.get_width()
         self.center = center
         self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-        self.rect = self.image.get_rect()
-        self.rect.move_ip(self.position)
+
 
     def text(self):
         myfont = pygame.font.SysFont("arialblack", 15)
@@ -141,8 +139,7 @@ class Cell(pygame.sprite.Sprite):
         self.imageL.set_colorkey((255, 255, 255))
         self.center = center
         self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-        self.rect = self.imageD.get_rect()
-        self.rect.move_ip(self.position)
+
 
 
     def text(self):
@@ -171,21 +168,19 @@ class Cell(pygame.sprite.Sprite):
             self.volume -= 0.24
 
 
-def spawnEnemyVirus(startCell, destinationCell, myself):
+def spawnEnemyVirus(startCell, destinationCell):
     newVirus = Virus(
         "enemyVirus.png",
         startCell,
-        destinationCell,
-        myself
+        destinationCell
     )
     return newVirus
 
-def spawnMyVirus(startCell, destinationCell, myself):
+def spawnMyVirus(startCell, destinationCell):
     newVirus = Virus(
         "myVirus.png",
         startCell,
-        destinationCell,
-        myself
+        destinationCell
     )
     return newVirus
 

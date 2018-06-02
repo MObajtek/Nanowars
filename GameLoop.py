@@ -8,7 +8,6 @@ def gameLoop():
 
     x = False
     y = False
-    myself = False
     end = False
 
     activeCell = None
@@ -34,14 +33,12 @@ def gameLoop():
                 if activeCell is not None:
                     for neutral in neutrals:
                         if checkClick(neutral):
-                            myself = False
-                            myCurrentViruses.append(spawnMyVirus(activeCell, neutral, myself))
+                            myCurrentViruses.append(spawnMyVirus(activeCell, neutral))
                             activeCell.volume -= activeCell.volume // 2
                     #            tu powinno byc activeCell = None ---- CZYŻBY????
                     for enemy in enemies:
                         if checkClick(enemy):
-                            myself = False
-                            myCurrentViruses.append(spawnMyVirus(activeCell, enemy, myself))
+                            myCurrentViruses.append(spawnMyVirus(activeCell, enemy))
                             activeCell.volume -= activeCell.volume // 2
                             activeCell = None
 
@@ -51,11 +48,9 @@ def gameLoop():
                         # clicked on a cell
                         if activeCell and activeCell != cell:
                             # there was an active cell before - send viruses and reset activeCell
-                            myself = True
-                            myCurrentViruses.append(spawnMyVirus(activeCell, cell, myself))
+                            myCurrentViruses.append(spawnMyVirus(activeCell, cell))
                             activeCell.volume -= activeCell.volume // 2
                             activeCell = None
-                            myself = True
                         else:
                             # no current active cell, make that one the new active
                             activeCell = cell
@@ -78,7 +73,7 @@ def gameLoop():
                         if neutral.volume < mini:
                             mini = neutral.volume
                             attackN = neutral
-                    enemyCurrentViruses.append(spawnEnemyVirus(activeEnemy, attackN, 0))
+                    enemyCurrentViruses.append(spawnEnemyVirus(activeEnemy, attackN))
                     activeEnemy.volume -= activeEnemy.volume // 2
                 # Jeżeli nie istnieją żadne komorki neutralne, wyslij wirusa do mojej komorki najmniejszej wielkosci
                 else:
@@ -86,7 +81,7 @@ def gameLoop():
                         if cell.volume < mini:
                             mini = cell.volume
                             attackC = cell
-                    enemyCurrentViruses.append(spawnEnemyVirus(activeEnemy, attackC, 0))
+                    enemyCurrentViruses.append(spawnEnemyVirus(activeEnemy, attackC))
                     activeEnemy.volume -= activeEnemy.volume // 2
 
             elif event.type == pygame.KEYDOWN:

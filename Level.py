@@ -11,6 +11,7 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 red = (155, 0, 0)
 lightBlue = (155, 239, 255)
+yellow = (255, 255, 0)
 
 # Tworzenie poziomu
 level = [[100, 175],

@@ -4,6 +4,7 @@ from miscellaneousFunctions import *
 
 pygame.init()
 
+gameIntro()
 gameLoop()
 
 pygame.quit()
