@@ -4,7 +4,11 @@ import copy
 # Docelowo ładować obrazek Cell i jasny ogrąg zewnętrzny osobno
 # tak, żeby nie ładować całego nowego obrazka
 
-# Skalowanie komórek
+# Nowe poziomy
+
+# Klasy dziedziczące (parent do Cell, Neutral i Enemy zawierający center, volume, limit)
+
+# Bardziej precyzyjne klikanie (na podstawie maski?)
 
 # Siła ataku, siła obrony, prędkość, szybkość rozmnażania
 
@@ -90,7 +94,10 @@ class Neutral(pygame.sprite.Sprite):
         myfont = pygame.font.SysFont("arialblack", 15)
         return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
     def dis(self, plane):
-        plane.blit(self.image, (self.position[0], self.position[1]))
+        scaled = pygame.transform.scale(self.image, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+        self.size = scaled.get_width()
+        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
+        plane.blit(scaled, (self.position[0], self.position[1]))
         number = self.text()
         x = self.position[0] + self.size / 2 - number.get_rect().width / 2
         y = self.position[1] + self.size / 2 - number.get_rect().height / 2
@@ -102,18 +109,20 @@ class Enemies(pygame.sprite.Sprite):
         self.limit = limit
         self.volume = volume
         self.image = pygame.image.load(img).convert()
-        self.image = pygame.transform.scale(self.image, (int(self.limit) + 30, int(self.limit) + 30))
         self.image.set_colorkey((255, 255, 255))
-        self.size = self.image.get_width()
         self.center = center
+        self.size = self.image.get_width()
         self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-
 
     def text(self):
         myfont = pygame.font.SysFont("arialblack", 15)
         return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
+
     def dis(self, plane):
-        plane.blit(self.image, (self.position[0], self.position[1]))
+        scaled = pygame.transform.scale(self.image, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+        self.size = scaled.get_width()
+        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
+        plane.blit(scaled, (self.position[0], self.position[1]))
         number = self.text()
         x = self.position[0] + self.size / 2 - number.get_rect().width / 2
         y = self.position[1] + self.size / 2 - number.get_rect().height / 2
@@ -137,11 +146,9 @@ class Cell(pygame.sprite.Sprite):
         self.volume = volume
         self.limit = limit
         self.imageD = pygame.image.load(imgD).convert()
-        self.imageD = pygame.transform.scale(self.imageD, (int(self.volume) + 30, int(self.volume) + 30))
         self.imageD.set_colorkey((255, 255, 255))
         self.size = self.imageD.get_width()
         self.imageL = pygame.image.load(imgL).convert()
-        self.imageL = pygame.transform.scale(self.imageL, (int(self.volume) + 30, int(self.volume) + 30))
         self.imageL.set_colorkey((255, 255, 255))
         self.center = center
         self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
@@ -153,13 +160,20 @@ class Cell(pygame.sprite.Sprite):
         return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
     def dis(self, plane, D = 1):
         if D == 1:
-            plane.blit(self.imageD, (self.position[0], self.position[1]))
+            scaled = pygame.transform.scale(self.imageD, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+            self.size = scaled.get_width()
+            self.position = [self.center[0] - self.size // 2, self.center[1] - self.size // 2]
+            plane.blit(scaled, (self.position[0], self.position[1]))
         else:
-            plane.blit(self.imageL, (self.position[0], self.position[1]))
+            scaled = pygame.transform.scale(self.imageL, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+            self.size = scaled.get_width()
+            self.position = [self.center[0] - self.size // 2, self.center[1] - self.size // 2]
+            plane.blit(scaled, (self.position[0], self.position[1]))
         number = self.text()
         x = self.position[0] + self.size / 2 - number.get_rect().width / 2
         y = self.position[1] + self.size / 2 - number.get_rect().height / 2
         plane.blit(number, (x, y))
+        # zmniejszanie objetosci komorki zaleznie od wielkosci przekroczenia limitu
         if self.volume < self.limit:
             self.volume += 0.02
         elif abs(self.volume - self.limit) < 0.5:
