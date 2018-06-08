@@ -1,6 +1,12 @@
 import pygame
 import copy
 
+# Docelowo ładować obrazek Cell i jasny ogrąg zewnętrzny osobno
+# tak, żeby nie ładować całego nowego obrazka
+
+# Skalowanie komórek
+
+# Siła ataku, siła obrony, prędkość, szybkość rozmnażania
 
 
 

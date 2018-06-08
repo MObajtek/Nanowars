@@ -1,4 +1,3 @@
-from Level import *
 from miscellaneousFunctions import *
 
 
@@ -19,7 +18,6 @@ def gameLoop():
 
     while not gameExit:
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 gameExit = True
 
@@ -32,18 +30,18 @@ def gameLoop():
                 clickedCell = False
                 if activeCell is not None:
                     for neutral in neutrals:
-                        if checkClick(neutral):
+                        if checkClickCircle(neutral):
                             myCurrentViruses.append(spawnMyVirus(activeCell, neutral))
                             activeCell.volume -= activeCell.volume // 2
                     #            tu powinno byc activeCell = None ---- CZYŻBY????
                     for enemy in enemies:
-                        if checkClick(enemy):
+                        if checkClickCircle(enemy):
                             myCurrentViruses.append(spawnMyVirus(activeCell, enemy))
                             activeCell.volume -= activeCell.volume // 2
                             activeCell = None
 
                 for cell in cells:
-                    if checkClick(cell):
+                    if checkClickCircle(cell):
                         clickedCell = True
                         # clicked on a cell
                         if activeCell and activeCell != cell:
@@ -88,6 +86,9 @@ def gameLoop():
                 if event.key == pygame.K_RETURN:
                     if end:
                         gameExit = True
+                elif event.key == pygame.K_ESCAPE:
+                    gamePause()
+
 
         gameDisplay.fill(lightBlue)
 
