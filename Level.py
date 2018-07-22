@@ -1,12 +1,25 @@
 from Cells import *
 
-# JAK ZROBIC TWORZENIE KOLEJNYCH OBIEKTOW W PETLI???
+
+def newLevel(levelNumber):
+    cells = []
+    enemies = []
+    neutrals = []
+    myCurrentViruses = []
+    enemyCurrentViruses = []
+    level = levels[levelNumber]
+    allItems = [cells, neutrals, enemies, myCurrentViruses, enemyCurrentViruses]
+    for i in range(len(level['cells'])):
+        cells.append(spawnCell(level['cells'][i][0], level['cells'][i][1], level['cells'][i][2]))
+    for i in range(len(level['enemies'])):
+        enemies.append(spawnEnemy(level['enemies'][i][0], level['enemies'][i][1], level['enemies'][i][2]))
+    for i in range(len(level['neutrals'])):
+        neutrals.append(spawnNeutral(level['neutrals'][i][0], level['neutrals'][i][1], level['neutrals'][i][2]))
+    return allItems
+
 
 displayWidth = 800
 displayHeight = 700
-
-
-
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -15,42 +28,57 @@ lightBlue = (155, 239, 255)
 yellow = (255, 255, 0)
 
 # Tworzenie poziomu
-levelOne = [[100, 175],
-            [100, 350],
-            [100, 525],
-            [400, 175],
-            [400, 350],
-            [400, 525],
-            [700, 175],
-            [700, 350],
-            [700, 525]]
+
+
+levels = [
+    # LEVEL ONE
+    {'cells':
+         [
+            [[100, 175], 20, 40],
+            [[100, 350], 30, 60],
+            [[100, 525], 45, 90]
+         ],
+     'enemies':
+         [
+            [[700, 175], 45, 90],
+            [[700, 350], 30, 60],
+            [[700, 525], 20, 40]
+         ],
+     'neutrals':
+         [
+            [[400, 175], 10, 10],
+            [[400, 350], 30, 30],
+            [[400, 525], 10, 10]
+         ],
+     },
+    # LEVEL TWO
+    {'cells':
+         [
+            [[100, 300], 20, 40]
+         ],
+     'enemies':
+         [
+            [[400, 600], 20, 40]
+         ],
+     'neutrals':
+         [
+            [[400, 250], 10, 10],
+            [[400, 350], 30, 30],
+            [[400, 450], 10, 10],
+            [[200, 200], 30, 60],
+            [[300, 100], 45, 90],
+            [[600, 400], 45, 90],
+            [[500, 500], 30, 60]
+         ]
+     }
+]
 
 gameDisplay = pygame.display.set_mode((displayWidth, displayHeight))  # Wielkosc okna
 pygame.display.set_caption('Nanowars')  # Nazwa okna
 clock = pygame.time.Clock()  # Zegar gry
-enemySpeed = 5000 # Szybkosc ruchow AI w ms
+enemySpeed = 5000  # Szybkosc ruchow AI w ms
 pygame.time.set_timer(pygame.USEREVENT + 1, enemySpeed)
 
-# Ladowanie obrazkow
-
-circleLg1 = Cell('CircleLg.png', 'CircleLgl.png', levelOne[0], 20, 40)
-circleLg2 = Cell('CircleLg.png', 'CircleLgl.png', levelOne[1], 30, 60)
-circleLg3 = Cell('CircleLg.png', 'CircleLgl.png', levelOne[2], 45, 90)
-
-circleG1 = Neutral('circleG.png', levelOne[3], 10)
-circleG2 = Neutral('circleG.png', levelOne[4], 30)
-circleG3 = Neutral('circleG.png', levelOne[5], 10)
-
-circleLr1 = Enemies('CircleLr.png', levelOne[6], 45, 90)
-circleLr2 = Enemies('CircleLr.png', levelOne[7], 30, 60)
-circleLr3 = Enemies('CircleLr.png', levelOne[8], 20, 40)
-
-cells = [circleLg1, circleLg2, circleLg3]
-neutrals = [circleG1, circleG2, circleG3]
-enemies = [circleLr1, circleLr2, circleLr3]
-myCurrentViruses = []
-enemyCurrentViruses = []
-circles = [cells,neutrals,enemies,myCurrentViruses,enemyCurrentViruses]
 # cells = 0
 # neutrals = 1
 # enemies = 2

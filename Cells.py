@@ -1,7 +1,7 @@
 import pygame
 import copy
 
-# Docelowo ładować obrazek Cell i jasny ogrąg zewnętrzny osobno
+# Docelowo ładować obrazek Cell i jasny ogkąg zewnętrzny osobno
 # tak, żeby nie ładować całego nowego obrazka
 
 # Nowe poziomy
@@ -12,6 +12,17 @@ import copy
 
 # Siła ataku, siła obrony, prędkość, szybkość rozmnażania
 
+# Chce zrobic parenta "circle" i dziecko "neutral". "Circle" ma miec w konstruktorze limit i center. "Neutral" ma miec image.
+# jak wywolac neutral zeby ustawic wszystkie trzy rzeczy (czy sie da?)
+
+# chce zrobic parenta. Ma w nim byc "resize" ktory musi dostawac i zmieniac "self.volume". Jego dziecko ma miec dodatkowe zmienne "self." i funkcje.
+# Jak zainicjowac dziecko, zeby ustawic w nim jednoczesnie zmienne swoje i parenta?
+
+# kiedy neutral zmienia sie w cell, limit nowego cella powinien byc taki sam jak poczatkowa wielkosc neutrala
+
+class Circle(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
 
 
 class Virus(pygame.sprite.Sprite):
@@ -24,9 +35,9 @@ class Virus(pygame.sprite.Sprite):
         self.destinationCell = destinationCell
         self.startCell = startCell
         self.size = self.image.get_rect().width
-        self.center = copy.deepcopy(startCell.center)
+        self.position = copy.deepcopy(startCell.position)
         self.volume = startCell.volume // 2
-        self.direction = [destinationCell.center[0] - self.center[0], destinationCell.center[1] - self.center[1]]
+        self.direction = [destinationCell.position[0] - self.position[0], destinationCell.position[1] - self.position[1]]
 
         magnitude = (self.direction[0] ** 2 + self.direction[1] ** 2) ** 0.5
         if magnitude == 0:
@@ -38,21 +49,16 @@ class Virus(pygame.sprite.Sprite):
 
     def send(self, allList):
 
-        self.center[0] += self.direction[0] * self.speed
-        self.center[1] += self.direction[1] * self.speed
+        self.position[0] += self.direction[0] * self.speed
+        self.position[1] += self.direction[1] * self.speed
         # jesli x i y w odleglosci conajwyzej 5 od celu
-        if abs(self.center[0] - self.destinationCell.center[0]) < 5:
-            if abs(self.center[1] - self.destinationCell.center[1]) < 5:
+        if abs(self.position[0] - self.destinationCell.position[0]) < 5:
+            if abs(self.position[1] - self.destinationCell.position[1]) < 5:
                 for i in range(3):
                     for circle in allList[i]:
-                        if circle.center == self.destinationCell.center:
+                        if circle.position == self.destinationCell.position:
                             self.destinationCell = circle
                 if type(self.startCell) == type(self.destinationCell):
-                    myself = True
-                else:
-                    myself = False
-                # 1. przekaz komorki
-                if myself:
                     self.destinationCell.volume += self.volume
                 else:
                     self.destinationCell.volume -= self.volume
@@ -71,14 +77,14 @@ class Virus(pygame.sprite.Sprite):
         myfont = pygame.font.SysFont("arialblack", 15)
         return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
     def dis(self, plane):
-        plane.blit(self.image, (self.center[0] - self.size//2, self.center[1] - self.size//2))
+        plane.blit(self.image, (self.position[0] - self.size//2, self.position[1] - self.size//2))
         number = self.text()
-        x = self.center[0]  - number.get_rect().width / 2
-        y = self.center[1]  - number.get_rect().height / 2
+        x = self.position[0] - number.get_rect().width / 2
+        y = self.position[1] - number.get_rect().height / 2
         plane.blit(number, (x, y))
 
 class Neutral(pygame.sprite.Sprite):
-    def __init__(self, img, center, limit):
+    def __init__(self, img, position, limit):
         pygame.sprite.Sprite.__init__(self)
         self.limit = limit
         self.volume = limit * 0.5
@@ -86,8 +92,7 @@ class Neutral(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (int(self.limit) + 30, int(self.limit) + 30))
         self.image.set_colorkey((255, 255, 255))
         self.size = self.image.get_width()
-        self.center = center
-        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
+        self.position = position
         self.volume = limit
 
     def text(self):
@@ -96,23 +101,21 @@ class Neutral(pygame.sprite.Sprite):
     def dis(self, plane):
         scaled = pygame.transform.scale(self.image, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
         self.size = scaled.get_width()
-        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-        plane.blit(scaled, (self.position[0], self.position[1]))
+        plane.blit(scaled, (self.position[0]-self.size//2, self.position[1]-self.size//2))
         number = self.text()
-        x = self.position[0] + self.size / 2 - number.get_rect().width / 2
-        y = self.position[1] + self.size / 2 - number.get_rect().height / 2
+        x = self.position[0] - number.get_rect().width / 2
+        y = self.position[1] - number.get_rect().height / 2
         plane.blit(number, (x, y))
 
 class Enemies(pygame.sprite.Sprite):
-    def __init__(self, img, center, volume, limit):
+    def __init__(self, img, position, volume, limit):
         pygame.sprite.Sprite.__init__(self)
         self.limit = limit
         self.volume = volume
         self.image = pygame.image.load(img).convert()
         self.image.set_colorkey((255, 255, 255))
-        self.center = center
         self.size = self.image.get_width()
-        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
+        self.position = position
 
     def text(self):
         myfont = pygame.font.SysFont("arialblack", 15)
@@ -121,57 +124,10 @@ class Enemies(pygame.sprite.Sprite):
     def dis(self, plane):
         scaled = pygame.transform.scale(self.image, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
         self.size = scaled.get_width()
-        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-        plane.blit(scaled, (self.position[0], self.position[1]))
+        plane.blit(scaled, (self.position[0]-self.size//2, self.position[1]-self.size//2))
         number = self.text()
-        x = self.position[0] + self.size / 2 - number.get_rect().width / 2
-        y = self.position[1] + self.size / 2 - number.get_rect().height / 2
-        plane.blit(number, (x, y))
-        if self.volume < self.limit:
-            self.volume += 0.02
-        elif abs(self.volume - self.limit) < 0.5:
-            pass
-        elif self.volume - self.limit < 10:
-            self.volume -= 0.03
-        elif self.volume - self.limit < 30:
-            self.volume -= 0.06
-        elif self.volume - self.limit < 50:
-            self.volume -= 0.12
-        else:
-            self.volume -= 0.24
-
-class Cell(pygame.sprite.Sprite):
-    def __init__(self, imgD, imgL, center, volume, limit):
-        pygame.sprite.Sprite.__init__(self)
-        self.volume = volume
-        self.limit = limit
-        self.imageD = pygame.image.load(imgD).convert()
-        self.imageD.set_colorkey((255, 255, 255))
-        self.size = self.imageD.get_width()
-        self.imageL = pygame.image.load(imgL).convert()
-        self.imageL.set_colorkey((255, 255, 255))
-        self.center = center
-        self.position = [self.center[0] - self.size//2, self.center[1] - self.size//2]
-
-
-
-    def text(self):
-        myfont = pygame.font.SysFont("arialblack", 15)
-        return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
-    def dis(self, plane, D = 1):
-        if D == 1:
-            scaled = pygame.transform.scale(self.imageD, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
-            self.size = scaled.get_width()
-            self.position = [self.center[0] - self.size // 2, self.center[1] - self.size // 2]
-            plane.blit(scaled, (self.position[0], self.position[1]))
-        else:
-            scaled = pygame.transform.scale(self.imageL, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
-            self.size = scaled.get_width()
-            self.position = [self.center[0] - self.size // 2, self.center[1] - self.size // 2]
-            plane.blit(scaled, (self.position[0], self.position[1]))
-        number = self.text()
-        x = self.position[0] + self.size / 2 - number.get_rect().width / 2
-        y = self.position[1] + self.size / 2 - number.get_rect().height / 2
+        x = self.position[0] - number.get_rect().width / 2
+        y = self.position[1] - number.get_rect().height / 2
         plane.blit(number, (x, y))
         # zmniejszanie objetosci komorki zaleznie od wielkosci przekroczenia limitu
         if self.volume < self.limit:
@@ -186,6 +142,48 @@ class Cell(pygame.sprite.Sprite):
             self.volume -= 0.12
         else:
             self.volume -= 0.24
+
+class Cell(pygame.sprite.Sprite):
+    def __init__(self, imgD, imgL, position, volume, limit):
+        pygame.sprite.Sprite.__init__(self)
+        self.volume = volume
+        self.limit = limit
+        self.imageD = pygame.image.load(imgD).convert()
+        self.imageD.set_colorkey((255, 255, 255))
+        self.size = self.imageD.get_width()
+        self.imageL = pygame.image.load(imgL).convert()
+        self.imageL.set_colorkey((255, 255, 255))
+        self.position = position
+
+    def text(self):
+        myfont = pygame.font.SysFont("arialblack", 15)
+        return myfont.render(str(int(self.volume)), 1, (255, 255, 0))
+    def dis(self, plane, D = 1):
+        if D == 1:
+            scaled = pygame.transform.scale(self.imageD, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+        else:
+            scaled = pygame.transform.scale(self.imageL, (int(self.volume*1.5) + 20, int(self.volume*1.5) + 20))
+        self.size = scaled.get_width()
+        plane.blit(scaled, (self.position[0] - self.size // 2, self.position[1] - self.size // 2))
+
+        number = self.text()
+        x = self.position[0] - number.get_rect().width / 2
+        y = self.position[1] - number.get_rect().height / 2
+        plane.blit(number, (x, y))
+        # zmniejszanie objetosci komorki zaleznie od wielkosci przekroczenia limitu
+        if self.volume < self.limit:
+            self.volume += 0.02
+        elif abs(self.volume - self.limit) < 0.5:
+            pass
+        elif self.volume - self.limit < 10:
+            self.volume -= 0.03
+        elif self.volume - self.limit < 30:
+            self.volume -= 0.06
+        elif self.volume - self.limit < 50:
+            self.volume -= 0.12
+        else:
+            self.volume -= 0.24
+
 
 
 def spawnEnemyVirus(startCell, destinationCell):
@@ -203,6 +201,14 @@ def spawnMyVirus(startCell, destinationCell):
         destinationCell
     )
     return newVirus
+
+def spawnNeutral(position,limit,none):
+    newNeutral = Neutral(
+        'circleG.png',
+        position,
+        limit
+    )
+    return newNeutral
 
 def spawnEnemy(position, volume, limit):
     newEnemy = Enemies(

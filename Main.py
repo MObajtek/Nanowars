@@ -1,6 +1,4 @@
 from GameLoop import *
-from miscellaneousFunctions import *
-
 
 pygame.init()
 

@@ -1,5 +1,5 @@
 from Level import *
-
+from Cells import *
 
 class Text(pygame.sprite.Sprite):
     def __init__(self, string, fontSize, plane, offset):
@@ -100,22 +100,17 @@ def checkClickCircle(cell):
     size = cell.size
     if pygame.mouse.get_pressed() == (1, 0, 0):
         x, y = pygame.mouse.get_pos()
-        if posx <= x <= posx + size:
-            if posy <= y <= posy + size:
+        if posx-size//2 <= x <= posx + size//2:
+            if posy-size//2 <= y <= posy + size//2:
                 return True
         else:
             return False
 
-def lostWon(enemies, cells):
-    if enemies == []:
-        gameDisplay.fill(lightBlue)
-        Text("CONGRATULATIONS! YOU WON!",40,gameDisplay,(0,-50)).dis()
-        Text("press ENTER to exit",15,gameDisplay,(0,0)).dis()
-        return True
-    elif cells == []:
-        gameDisplay.fill(lightBlue)
-        Text("Sorry, you lost",40,gameDisplay,(0,-50)).dis()
-        Text("press ENTER to exit",15,gameDisplay,(0,0)).dis()
-        return True
-    return False
+def checkWin(enemies, enemyViruses):
+    return enemies == [] and enemyViruses == []
+
+def checkLose(cells, myViruses):
+    return cells == [] and myViruses == []
+
+
 
